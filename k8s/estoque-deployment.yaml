@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: estoque-deployment
+  labels:
+    app: veloz-estoque
+spec:
+  replicas: 1 # estoque local
+  selector:
+    matchLabels:
+      app: veloz-estoque
+  template:
+    metadata:
+      labels:
+        app: veloz-estoque
+    spec:
+      containers:
+      - name: veloz-estoque
+         
+        image: loja-veloz-veloz-estoque:latest
+        imagePullPolicy: IfNotPresent # Diz ao K8s para usar a imagem local da máquina
+        env:
+        - name: RABBITMQ_URL
+         
+         
+          value: "amqp://rabbitmq-service:5672"
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
+          requests:
+            memory: "64Mi"
+            cpu: "100m"

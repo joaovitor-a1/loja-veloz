@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pedidos-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: pedidos-service
+  template:
+    metadata:
+      labels:
+        app: pedidos-service
+    spec:
+      containers:
+      - name: pedidos-app
+        image: veloz-pedidos:v3
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+        envFrom:
+        - configMapRef:
+            name: pedidos-config
+        - secretRef:
+            name: pedidos-secret
+        
+        # Limites de recursos do container 
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "256Mi"
+
+        #  Liveness Probe: Se o container travar reinicia o pod
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 15
+          timeoutSeconds: 3
+          failureThreshold: 3
+
+        #  Readiness Probe: Se o banco e a fila estiverem prontos, libera para receber requisições
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3

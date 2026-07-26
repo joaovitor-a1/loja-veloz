@@ -1,0 +1,12 @@
+{
+  "name": "veloz-pagamentos",
+  "version": "1.0.0",
+  "description": "Servico de Pagamentos desacoplado via RabbitMQ",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.3"
+  }
+}

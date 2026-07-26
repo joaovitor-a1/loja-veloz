@@ -1,0 +1,13 @@
+{
+  "name": "veloz-gateway",
+  "version": "1.0.0",
+  "description": "Porta de entrada única para o ecossistema Veloz",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "http-proxy-middleware": "^3.0.0"
+  }
+}

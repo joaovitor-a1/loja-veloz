@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  veloz-db:
+    image: postgres:15-alpine
+    container_name: veloz-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: loja_veloz
+      POSTGRES_USER: veloz_user
+      POSTGRES_PASSWORD: veloz_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  veloz-mq:
+    image: rabbitmq:3-management-alpine
+    container_name: veloz-mq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  # SERVIÇO DE PEDIDOS 
+  veloz-pedidos:
+    build: ./services/pedidos
+    container_name: veloz-pedidos
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgres://veloz_user:veloz_password@veloz-db:5432/loja_veloz
+      - RABBITMQ_URL=amqp://veloz-mq:5672
+    depends_on:
+      - veloz-db
+      - veloz-mq
+
+  # SERVIÇO DE PAGAMENTOS
+  veloz-pagamentos:
+    build: ./services/pagamentos
+    container_name: veloz-pagamentos
+    environment:
+      - RABBITMQ_URL=amqp://veloz-mq:5672
+    depends_on:
+      - veloz-mq
+
+  # SERVIÇO DE ESTOQUE 
+  veloz-estoque:
+    build: ./services/estoque
+    container_name: veloz-estoque
+    environment:
+      - RABBITMQ_URL=amqp://veloz-mq:5672
+    depends_on:
+      - veloz-mq
+
+  # API GATEWAY
+  veloz-gateway:
+    build: ./api-gateway
+    container_name: veloz-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - PEDIDOS_SERVICE_URL=http://veloz-pedidos:3000
+    depends_on:
+      - veloz-pedidos
+
+volumes:
+  postgres_data:

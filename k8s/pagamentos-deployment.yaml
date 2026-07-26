@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: veloz-pagamentos
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: veloz-pagamentos
+  template:
+    metadata:
+      labels:
+        app: veloz-pagamentos
+    spec:
+      containers:
+      - name: pagamentos-app
+        image: veloz-pagamentos:v1
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: RABBITMQ_URL
+          value: "amqp://rabbitmq-service:5672"
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"

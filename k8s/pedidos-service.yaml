@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pedidos-service
+spec:
+  type: NodePort #  serviço que abre uma porta da  máquina local para o cluster
+  selector:
+    app: pedidos-service # Encontra os Pods criados
+  ports:
+    - protocol: TCP
+      port: 3000      #  porta que o serviço escuta dentro do cluster
+      targetPort: 3000 #  porta real onde o Node.js está rodando dentro do container
+      nodePort: 30001  #  (http://localhost:30001) navegador
