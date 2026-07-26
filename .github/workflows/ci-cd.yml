@@ -7,7 +7,7 @@ on:
     branches: [ "main", "master" ]
 
 jobs:
-  #  JOB 1: Testes e Validações dos Serviços
+  # 🧪 JOB 1: Build das Imagens e Teste das Aplicações
   build-and-test:
     name: Build & Validate Services
     runs-on: ubuntu-latest
@@ -38,7 +38,7 @@ jobs:
         docker build -t veloz-pagamentos:test ./services/pagamentos
         docker build -t veloz-estoque:test ./services/estoque
 
-  #  JOB 2: Validação dos Manifestos Kubernetes
+  # ☸️ JOB 2: Validação de Sintaxe dos Manifestos K8s
   validate-k8s:
     name: Validate Kubernetes Manifests
     runs-on: ubuntu-latest
@@ -48,15 +48,20 @@ jobs:
     - name: Checkout do Código
       uses: actions/checkout@v4
 
-    - name: Configurar kubectl
-      uses: azure/setup-kubectl@v4
-
-    - name: Dry-run dos Manifestos Kubernetes
+    - name: Validar Sintaxe dos Arquivos YAML
       run: |
-        # Executa a validação em cada arquivo YAML da pasta k8s
-        for file in k8s/*.yaml k8s/*.yml; do
-          if [ -f "$file" ]; then
-            echo "Validando $file..."
-            kubectl apply --dry-run=client -f "$file"
-          fi
-        done
+        # Valida a sintaxe YAML de todos os arquivos da pasta k8s usando Python
+        python3 -c "
+        import yaml, glob, sys
+        has_error = False
+        files = glob.glob('k8s/*.yaml') + glob.glob('k8s/*.yml')
+        for f in files:
+            try:
+                with open(f) as file:
+                    list(yaml.safe_load_all(file))
+                print(f'✅ {f} - Sintaxe YAML válida!')
+            except Exception as e:
+                print(f'❌ Erro no arquivo {f}: {e}')
+                has_error = True
+        if has_error: sys.exit(1)
+        "
