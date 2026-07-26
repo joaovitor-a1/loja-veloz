@@ -49,8 +49,14 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Configurar kubectl
-      uses: azure/setup-kubectl@v3
+      uses: azure/setup-kubectl@v4
 
     - name: Dry-run dos Manifestos Kubernetes
       run: |
-        kubectl apply --dry-run=client -f k8s/
+        # Executa a validação em cada arquivo YAML da pasta k8s
+        for file in k8s/*.yaml k8s/*.yml; do
+          if [ -f "$file" ]; then
+            echo "Validando $file..."
+            kubectl apply --dry-run=client -f "$file"
+          fi
+        done
