@@ -7,19 +7,19 @@ on:
     branches: [ "main", "master" ]
 
 jobs:
-  #  JOB 1: Testes e Validações
+  #  JOB 1: Testes e Validações dos Serviços
   build-and-test:
     name: Build & Validate Services
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout do Código
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Configurar Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
-        node-scale: '18'
+        node-version: '18'
 
     - name: Instalar Dependências do Gateway
       run: |
@@ -38,7 +38,7 @@ jobs:
         docker build -t veloz-pagamentos:test ./services/pagamentos
         docker build -t veloz-estoque:test ./services/estoque
 
-  #  JOB 2: Validação dos Manifestos K8s
+  #  JOB 2: Validação dos Manifestos Kubernetes
   validate-k8s:
     name: Validate Kubernetes Manifests
     runs-on: ubuntu-latest
@@ -46,9 +46,11 @@ jobs:
 
     steps:
     - name: Checkout do Código
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
+
+    - name: Configurar kubectl
+      uses: azure/setup-kubectl@v3
 
     - name: Dry-run dos Manifestos Kubernetes
       run: |
-        # Testa a sintaxe YAML de todos os manifestos na pasta k8s/
         kubectl apply --dry-run=client -f k8s/
